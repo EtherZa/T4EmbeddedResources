@@ -31,7 +31,7 @@ Settings code has been harvested from T4MVC MvcSettings (https://github.com/T4MV
 <#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
 <#
     var model = GetEmbeddedProjectItems(this, Host);
-	var manager = Manager.Create(Host, GenerationEnvironment);
+    var manager = Manager.Create(Host, GenerationEnvironment);
 #>
 <# manager.StartHeader(); #>
 //------------------------------------------------------------------------------
@@ -54,203 +54,223 @@ using System.IO;
 
 namespace <#= model.Namespace #>
 {
-	/// <summary>
-	/// Collection of resource providers to retrieve a embedded resources. Resources are retrieved from disk 
-	/// in a DEBUG build by reconstructing the path to the resource by searching for the .sln file in the 
-	/// parent tree structure.
-	/// </summary>
-	public static class <#= model.ClassName #>
-	{
-		static <#= model.ClassName #>() 
-		{
+    /// <summary>
+    /// Collection of resource providers to retrieve a embedded resources. Resources are retrieved from disk 
+    /// in a DEBUG build by reconstructing the path to the resource by searching for the .sln file in the 
+    /// parent tree structure.
+    /// </summary>
+    public static class <#= model.ClassName #>
+    {
+        static <#= model.ClassName #>() 
+        {
 #if DEBUG
 <# foreach (var i in model.EmbeddedResources) { #>
-			<#= i.PropertyName #> = new DebugResourceStreamProvider(@"<#= i.SlnRelativePath #>", @"<#= i.ResourceName #>");
+            <#= i.PropertyName #> = new DebugResourceStreamProvider(@"<#= i.SlnRelativePath #>", @"<#= i.ResourceName #>");
 <# } #>
 #else
 <# foreach (var i in model.EmbeddedResources) { #>
-			<#= i.PropertyName #> = new EmbeddedResourceStreamProvider(@"<#= i.ResourceName #>");
+            <#= i.PropertyName #> = new EmbeddedResourceStreamProvider(@"<#= i.ResourceName #>");
 <# } #>
 #endif
-		}
+        }
 
 <# foreach (var i in model.EmbeddedResources) { #>
         public static <#= model.ResourceStreamProviderBase #> <#= i.PropertyName #> { get; }
 <# } #>
 
 #if DEBUG
-	   /// <summary>
-	   /// Resource provider to provide an unmanaged stream to an embedded resource from disk. 
-	   /// This is for development use only with release builds using <see cref="EmbeddedResourceStreamProvider" />.
-	   /// <summary>
-	   public class DebugResourceStreamProvider : <#= model.ResourceStreamProviderBase #>
-	   {
-			static string _slnPath;
-			readonly string _path;
+       /// <summary>
+       /// Resource provider to provide an unmanaged stream to an embedded resource from disk. 
+       /// This is for development use only with release builds using <see cref="EmbeddedResourceStreamProvider" />.
+       /// <summary>
+       public class DebugResourceStreamProvider : <#= model.ResourceStreamProviderBase #>
+       {
+            static string _slnPath;
+            readonly string _path;
 
-			bool _embeddedResourceFound;
+            bool _embeddedResourceFound;
 
-			static DebugResourceStreamProvider()
-			{
-			    var assmeblyPath = Path.GetDirectoryName(typeof(DebugResourceStreamProvider).Assembly.Location);
-				var root = new DirectoryInfo(assmeblyPath);
-				while (root != null)
-				{
-					if (File.Exists(Path.Combine(root.FullName, @"<#= model.Solution.FileName #>")))
-					{
-						_slnPath = root.FullName;
-						return;
-					}
+            static DebugResourceStreamProvider()
+            {
+                var assmeblyPath = Path.GetDirectoryName(typeof(DebugResourceStreamProvider).Assembly.Location);
+                var root = new DirectoryInfo(assmeblyPath);
+                while (root != null)
+                {
+                    if (File.Exists(Path.Combine(root.FullName, @"<#= model.Solution.FileName #>")))
+                    {
+                        _slnPath = root.FullName;
+                        return;
+                    }
 
-					root = root.Parent;
-				}
+                    root = root.Parent;
+                }
 
-				Debug.Write($"{typeof(DebugResourceStreamProvider).FullName}: Unable to find .sln root (<#= model.Solution.FileName #>).");
-			}
+                Debug.Write($"{typeof(DebugResourceStreamProvider).FullName}: Unable to find .sln root (<#= model.Solution.FileName #>).");
+            }
 
-			internal DebugResourceStreamProvider(string path, string resourceName)
-			{
-				_embeddedResourceFound = false;
+            internal DebugResourceStreamProvider(string path, string resourceName)
+            {
+                _embeddedResourceFound = false;
 
-				_path = Path.Combine(_slnPath, path);
-				ResourceName = resourceName;
-			}
+                _path = Path.Combine(_slnPath, path);
+                ResourceName = resourceName;
+            }
 
-			/// <summary>
-			/// Gets an unmanaged stream for an embedded resource from disk.
-			/// </summary>
-			public Stream GetTemplateStream()
-			{
+            /// <summary>
+            /// Gets an unmanaged stream for an embedded resource from disk.
+            /// </summary>
+            public Stream GetTemplateStream()
+            {
                 AssertEmbeddedResourceCanBeFound();
                 Debug.Assert(File.Exists(_path), $"Unable to find file on disk [{_path}]");
 
-				Trace.Write($"{typeof(DebugResourceStreamProvider).FullName}: Reading {ResourceName} from {_path}.");
+                Trace.Write($"{typeof(DebugResourceStreamProvider).FullName}: Reading {ResourceName} from {_path}.");
 
-				return File.OpenRead(_path);
-			}
+                return File.OpenRead(_path);
+            }
 
-			/// <summary>
-			/// Asserts that the resource exists as an embedded resource (safety check for a release build).
-			/// </summary>
-			private void AssertEmbeddedResourceCanBeFound()
-			{
-				if (_embeddedResourceFound)
-				{
-					return;
-				}
+            /// <summary>
+            /// Asserts that the resource exists as an embedded resource (safety check for a release build).
+            /// </summary>
+            private void AssertEmbeddedResourceCanBeFound()
+            {
+                if (_embeddedResourceFound)
+                {
+                    return;
+                }
 
-				var assembly = typeof(EmbeddedResourceStreamProvider).Assembly;
-				var resourceInfo = assembly.GetManifestResourceInfo(ResourceName);
+                var assembly = typeof(EmbeddedResourceStreamProvider).Assembly;
+                var resourceInfo = assembly.GetManifestResourceInfo(ResourceName);
 
                 Debug.Assert(resourceInfo != null, $"Unable to find resource [{ResourceName}]");
 
-				_embeddedResourceFound = true;
-			}
+                _embeddedResourceFound = true;
+            }
 
-			/// <summary>
-			/// Associated embedded resource name.
-			/// </summary>
-			public string ResourceName { get; }
-	   }
+            /// <summary>
+            /// Associated embedded resource name.
+            /// </summary>
+            public string ResourceName { get; }
+       }
 #endif
 
-	   /// <summary>
-	   /// Creates an unamanged stream for an embedded resource.
-	   /// </summary>
-	   public class EmbeddedResourceStreamProvider : <#= model.ResourceStreamProviderBase #>
-	   {
-			internal EmbeddedResourceStreamProvider(string resourceName)
-			{
-				ResourceName = resourceName;
-			}
+       /// <summary>
+       /// Creates an unamanged stream for an embedded resource.
+       /// </summary>
+       public class EmbeddedResourceStreamProvider : <#= model.ResourceStreamProviderBase #>
+       {
+            internal EmbeddedResourceStreamProvider(string resourceName)
+            {
+                ResourceName = resourceName;
+            }
 
-			/// <summary>
-			/// Resource name.
-			/// </summary>
+            /// <summary>
+            /// Resource name.
+            /// </summary>
             public string ResourceName { get; }
 
-			/// <summary>
-			/// Gets an unmanaged stream for an embedded resource.
-			/// </summary>
-			public Stream GetTemplateStream()
-			{
-				var assembly = typeof(EmbeddedResourceStreamProvider).Assembly;
-				return assembly.GetManifestResourceStream(ResourceName);
-			}
-	   }
-	}
+            /// <summary>
+            /// Gets an unmanaged stream for an embedded resource.
+            /// </summary>
+            public Stream GetTemplateStream()
+            {
+                var assembly = typeof(EmbeddedResourceStreamProvider).Assembly;
+                return assembly.GetManifestResourceStream(ResourceName);
+            }
+       }
+    }
 <# if (model.IncludeResourceStreamProviderInterface) { #>
 
-	/// <summary>
-	/// Resource stream provider.
-	/// </summary>
-	public interface IResourceStreamProvider
-	{
-		/// <summary>
-		/// Gets an unmanaged stream for a resource.
-		/// </summary>
-		Stream GetTemplateStream();
-	}
+    /// <summary>
+    /// Resource stream provider.
+    /// </summary>
+    public interface IResourceStreamProvider
+    {
+        /// <summary>
+        /// Gets an unmanaged stream for a resource.
+        /// </summary>
+        Stream GetTemplateStream();
+    }
 <# } #>
 }
 <#
-	settings.SaveChanges(manager); 
+    settings.SaveChanges(manager); 
 #>
 <#+
     static TextTransformation TT;
-	static string T4FileName;
-	static Settings settings;
+    static string T4FileName;
+    static Settings settings;
 
-	public Model GetEmbeddedProjectItems(TextTransformation tt, ITextTemplatingEngineHost host)
-	{
+    public Model GetEmbeddedProjectItems(TextTransformation tt, ITextTemplatingEngineHost host)
+    {
         TT = tt;
-		T4FileName = Path.GetFileName(host.TemplateFile);
-		settings = Settings.Load(Host);
+        T4FileName = Path.GetFileName(host.TemplateFile);
+        settings = Settings.Load(Host);
 
         var visualStudio = (this.Host as IServiceProvider).GetService(typeof(DTE)) as DTE;
-		var solution = visualStudio.Solution;
+        var solution = visualStudio.Solution;
         var templateProjectItem = solution.FindProjectItem(T4FileName);
         var project = templateProjectItem.ContainingProject as Project;
 
-		ProjectItems projectItemsRoot = GetTemplateParentProjectItems(templateProjectItem);
+        ProjectItems projectItemsRoot = GetTemplateParentProjectItems(templateProjectItem);
 
-		if (string.IsNullOrWhiteSpace(settings.Namespace))
-		{
-			if (!CodeGenerator.IsValidLanguageIndependentIdentifier(settings.ClassName))
-			{
-				throw new ApplicationException(string.Format("'{0}' is not a valid namespace.", settings.Namespace));
-			}
-
-			settings.Namespace = project.Properties.Item("DefaultNamespace").Value.ToString();
+        if (string.IsNullOrWhiteSpace(settings.Namespace))
+        {
+            if (!IsValidName(settings.Namespace, true))
+            {
+                throw new ApplicationException(string.Format("'{0}' is not a valid namespace.", settings.Namespace));
+            }
+            
+            settings.Namespace = project.Properties.Item("DefaultNamespace").Value.ToString();
         }
 
-		if (!CodeGenerator.IsValidLanguageIndependentIdentifier(settings.ClassName) || settings.ClassName.Contains("."))
-		{
-			throw new ApplicationException(string.Format("'{0}' is not a valid class name.", settings.ClassName));
+        if (!IsValidName(settings.ClassName, false))
+        {
+            throw new ApplicationException(string.Format("'{0}' is not a valid class name.", settings.ClassName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.ResourceStreamProviderBase) && !IsValidName(settings.ResourceStreamProviderBase, true))
+        {
+            throw new ApplicationException(string.Format("'{0}' is not a valid base class name.", settings.ResourceStreamProviderBase));
         }
 
         return new Model(settings.Namespace, settings.ClassName, settings.ResourceStreamProviderBase, Host.TemplateFile, solution, project, FindEmbeddedResources(projectItemsRoot));
-	}
+    }
 
-	ProjectItems GetTemplateParentProjectItems(ProjectItem templateProjectItem)
-	{
+    bool IsValidName(string value, bool allowParts) 
+    {
+        var parts = allowParts ? value.Split(new[] {'.'}) : new [] { value };
+
+        foreach (var part in parts)
+        {
+            if (!CodeGenerator.IsValidLanguageIndependentIdentifier(value))
+            {
+                return false;
+            }            
+        }
+
+        return true;
+    }
+
+    ProjectItems GetTemplateParentProjectItems(ProjectItem templateProjectItem)
+    {
         var hostParent = templateProjectItem
-								.Collection
-								.Parent;
+                                .Collection
+                                .Parent;
 
-		var hostParentProjectItem = hostParent as ProjectItem;
+        var hostParentProjectItem = hostParent as ProjectItem;
         if (hostParentProjectItem != null)
         {
-			return hostParentProjectItem.ProjectItems;
+            return hostParentProjectItem.ProjectItems;
         }
-		
-		var hostParentProject = hostParent as Project;
+        
+        var hostParentProject = hostParent as Project;
         if (hostParentProject != null)
         {
-			return hostParentProject.ProjectItems;
+            return hostParentProject.ProjectItems;
         }
 
-		throw new ApplicationException("Unable to determine template parent.");
+        throw new ApplicationException("Unable to determine template parent.");
     }
 
     IEnumerable<ProjectItem> FindEmbeddedResources(EnvDTE.ProjectItems items)
@@ -261,7 +281,7 @@ namespace <#= model.Namespace #>
             {
                 continue;
             }
-   	 
+     
             var prop = item.Properties.Item("BuildAction");
             if (prop != null 
                 && (VSLangProj.prjBuildAction)prop.Value == VSLangProj.prjBuildAction.prjBuildActionEmbeddedResource)
@@ -275,44 +295,44 @@ namespace <#= model.Namespace #>
     {
         public Model(string @namespace, string className, string resourceStreamProviderBase, string templatePath, EnvDTE.Solution solution, EnvDTE.Project project, IEnumerable<ProjectItem> resources)
         {
-			Namespace = @namespace;
-			ClassName =  className;
-			IncludeResourceStreamProviderInterface = string.IsNullOrWhiteSpace(resourceStreamProviderBase);
-			ResourceStreamProviderBase = string.IsNullOrWhiteSpace(resourceStreamProviderBase)
-										 ? "IResourceStreamProvider"
-										 : resourceStreamProviderBase;
+            Namespace = @namespace;
+            ClassName =  className;
+            IncludeResourceStreamProviderInterface = string.IsNullOrWhiteSpace(resourceStreamProviderBase);
+            ResourceStreamProviderBase = string.IsNullOrWhiteSpace(resourceStreamProviderBase)
+                                         ? "IResourceStreamProvider"
+                                         : resourceStreamProviderBase;
 
             TemplateFileName = Path.GetFileName(templatePath);
-			Solution = new SolutionModel(solution);
+            Solution = new SolutionModel(solution);
             Project = new ProjectModel(project);
             EmbeddedResources = resources.Select(x => new ResourceModel(Solution, Project, x)).ToList();
         }
 
-		public string ClassName { get; }
+        public string ClassName { get; }
 
-		public bool IncludeResourceStreamProviderInterface { get; }
+        public bool IncludeResourceStreamProviderInterface { get; }
 
         public IEnumerable<ResourceModel> EmbeddedResources { get; }
 
-		public string Namespace { get; }
+        public string Namespace { get; }
 
         public ProjectModel Project { get; }
   
-		public string ResourceStreamProviderBase { get; }
+        public string ResourceStreamProviderBase { get; }
         
-		public SolutionModel Solution { get; }
+        public SolutionModel Solution { get; }
   
-		public string TemplateFileName { get; }
+        public string TemplateFileName { get; }
   
-		public class SolutionModel
+        public class SolutionModel
         {
-			public SolutionModel(EnvDTE.Solution solution)
-			{
-				FileName = System.IO.Path.GetFileName(solution.FullName);
-				Path = System.IO.Path.GetDirectoryName(solution.FullName);
+            public SolutionModel(EnvDTE.Solution solution)
+            {
+                FileName = System.IO.Path.GetFileName(solution.FullName);
+                Path = System.IO.Path.GetDirectoryName(solution.FullName);
             }
 
-			public string FileName { get; }
+            public string FileName { get; }
 
             public string Path { get; }
         }
@@ -337,28 +357,28 @@ namespace <#= model.Namespace #>
         {
             public ResourceModel(SolutionModel solution, ProjectModel project, ProjectItem resource)
             {
-				SlnRelativePath = Uri.UnescapeDataString(GetRelativePath(PathWithTrailingSlash(solution.Path), (resource.FileNames[1])))
-									 .Replace("/", "\\");
+                SlnRelativePath = Uri.UnescapeDataString(GetRelativePath(PathWithTrailingSlash(solution.Path), (resource.FileNames[1])))
+                                     .Replace("/", "\\");
 
-				PropertyName = Regex.Replace(Path.GetFileNameWithoutExtension(resource.Name), @"[^\w\d]", "_");
+                PropertyName = Regex.Replace(Path.GetFileNameWithoutExtension(resource.Name), @"[^\w\d]", "_");
 
-				//todo: split resource path and name
+                //todo: split resource path and name
                 var relativeProjectPath = GetRelativePath(PathWithTrailingSlash(project.Path), resource.FileNames[1]);
-				var rawResourceName = string.Concat(project.RootNamespace, ".", Uri.UnescapeDataString(relativeProjectPath))
-									.Replace("/", ".");
-				ResourceName = Regex.Replace(rawResourceName, @"[^\w\d\.]", "_");
+                var rawResourceName = string.Concat(project.RootNamespace, ".", Uri.UnescapeDataString(relativeProjectPath))
+                                    .Replace("/", ".");
+                ResourceName = Regex.Replace(rawResourceName, @"[^\w\d\.]", "_");
             }
 
-			string PathWithTrailingSlash(string path)
-			{
-				return path.EndsWith("\\")
-							? path
-							: string.Concat(path, "\\");
+            string PathWithTrailingSlash(string path)
+            {
+                return path.EndsWith("\\")
+                            ? path
+                            : string.Concat(path, "\\");
             }
 
-			public string SlnRelativePath { get; }
-				 
-			public string PropertyName { get; }
+            public string SlnRelativePath { get; }
+                 
+            public string PropertyName { get; }
   
             public string ResourceName { get; }
   
@@ -384,12 +404,12 @@ namespace <#= model.Namespace #>
 
         public Settings()
         {
-			Namespace = string.Empty;
-			ClassName = "Resources";
-			ResourceStreamProviderBase = string.Empty;
+            Namespace = string.Empty;
+            ClassName = "Resources";
+            ResourceStreamProviderBase = string.Empty;
         }
 
-        [System.ComponentModel.Description("Namespcae to use.")]
+        [System.ComponentModel.Description("Namespace to use.")]
         public string Namespace { get; set; }
 
         [System.ComponentModel.Description("Name to use for the containing class.")]
