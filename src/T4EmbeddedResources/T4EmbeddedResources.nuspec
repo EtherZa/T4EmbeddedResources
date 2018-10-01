@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>T4EmbeddedResources</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 	<title>T4 Embedded Resources</title>
     <authors>Richard Pringle</authors>
     <owners>Richard Pringle</owners>
@@ -11,12 +11,11 @@
     <projectUrl>https://github.com/EtherZa/T4EmbeddedResources</projectUrl>
     <description>T4 template to generate unmanaged streams for embedded resources.</description>
     <summary>T4EmbeddedResources is a template to generate unmanaged streams for embedded resources. Resources are sourced from file streams in DEBUG builds and from the module in a RELEASE build.</summary>
-    <releaseNotes>1.0.0 - Initial release.</releaseNotes>
     <language>en-AU</language>
     <tags>t4 embedded resource</tags>
   </metadata>
   <files>
-    <file src="T4EmbeddedResources.tt" target="Resources\T4EmbeddedResources.tt" />
+    <file src="T4EmbeddedResources.tt" target="Content\Resources\T4EmbeddedResources.tt" />
     <file src="install.ps1" target="tools\install.ps1" />
   </files>
 </package>
