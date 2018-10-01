@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Settings>
+  <!--Namespcae to use.-->
+  <Namespace>T4EmbeddedResources.Sample.Resources</Namespace>
+  <!--Name to use for the containing class.-->
+  <ClassName>TextResources</ClassName>
+  <!--Full name of interface exposing "Stream GetTemplateStream()" method. If empty, IStreamResourceProvider will be added.-->
+  <ResourceStreamProviderBase />
+</Settings>
