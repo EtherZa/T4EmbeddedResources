@@ -243,7 +243,7 @@ namespace <#= model.Namespace #>
 
         foreach (var part in parts)
         {
-            if (!CodeGenerator.IsValidLanguageIndependentIdentifier(value))
+            if (!CodeGenerator.IsValidLanguageIndependentIdentifier(part))
             {
                 return false;
             }            

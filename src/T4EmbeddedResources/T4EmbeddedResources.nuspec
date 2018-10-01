@@ -2,15 +2,19 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>T4EmbeddedResources</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 	<title>T4 Embedded Resources</title>
     <authors>Richard Pringle</authors>
     <owners>Richard Pringle</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>https://github.com/EtherZa/T4EmbeddedResources/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/EtherZa/T4EmbeddedResources</projectUrl>
-    <description>T4 template to generate unmanaged streams for embedded resources.</description>
-    <summary>T4EmbeddedResources is a template to generate unmanaged streams for embedded resources. Resources are sourced from file streams in DEBUG builds and from the module in a RELEASE build.</summary>
+    <description>T4 template to create unmanaged streams to embedded resources in RELEASE builds and file streams in DEBUG builds.</description>
+    <summary>
+        T4EmbeddedResources is a template to generate unmanaged streams for embedded resources. Resources are sourced from file streams in DEBUG builds and from the module in a RELEASE build.
+
+        This allows for editing of resources while the application is running in development without having to rebuild/restart in order to re-embed the resource.
+    </summary>
     <language>en-AU</language>
     <tags>t4 embedded resource</tags>
   </metadata>

@@ -70,6 +70,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy $(SolutionDir)T4EmbeddedResources\T4EmbeddedResources.tt  $(SolutionDir)T4EmbeddedResources.Sample\Resources\ /Y</PreBuildEvent>
+    <PreBuildEvent>xcopy $(SolutionDir)T4EmbeddedResources\T4EmbeddedResources.tt  $(SolutionDir)T4EmbeddedResources.Sample\Resources\ /Y /R</PreBuildEvent>
   </PropertyGroup>
 </Project>
